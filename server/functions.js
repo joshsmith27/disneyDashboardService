@@ -117,7 +117,8 @@ const getCache = (name) =>{
  }; 
 
 const isClosed = (times)=>{
-    return new Date(times[0].closingTime) < new Date() ?  true : false;
+    const dt = new Date();
+    return new Date(times[0].closingTime).getTime() < (dt.getTime() + dt.getTimezoneOffset()*60*1000)   ?  true : false;
 };
 
 const getBestPark = ()=>{
