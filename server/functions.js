@@ -86,7 +86,7 @@ const syncCache = () => {
                 const parkInfo = getParkInfo(parks[i], parks[i+1][0]);
                 cachedParks.push(
                     {
-                        time:new Date().getTime() + (5 * 60 * 1000), 
+                        time:new Date().getTime() + (3 * 60 * 1000), 
                         name:keys[j],
                         parkInfo,
                         times:parks[i],
@@ -118,7 +118,11 @@ const getCache = (name) =>{
 
 const isClosed = (times)=>{
     const dt = new Date();
-    return new Date(times[0].closingTime).getTime() < (dt.getTime() + dt.getTimezoneOffset()*60*1000)   ?  true : false;
+    if(new Date(times[0].openingTime).getTime() <= (dt.getTime() + dt.getTimezoneOffset()*60*1000)){
+        return new Date(times[0].closingTime).getTime() < (dt.getTime() + dt.getTimezoneOffset()*60*1000) ? true : false;
+    }else{
+        return false;
+    }
 };
 
 const getBestPark = ()=>{
@@ -132,8 +136,14 @@ const getBestPark = ()=>{
 
     if(!allParksClosed){
         return cachedParks.reduce((bestPark, park)=>{
-            if(!bestPark.average || bestPark.average < park.average){
-                bestPark = park;
+            if(!bestPark.parkInfo){
+                if(!isNaN(park.parkInfo.average)){
+                    bestPark = park;
+                }
+            }else{
+                if(Number(bestPark.parkInfo.average) > Number(park.parkInfo.average)){
+                    bestPark = park;
+                }
             }
             return bestPark;
         },{})
