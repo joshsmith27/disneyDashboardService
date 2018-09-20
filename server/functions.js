@@ -1,4 +1,5 @@
 const parks = require('./parks');
+const moment = require('moment-timezone');
 let cachedParks = [];
 
 const checkActiveLength = (times) => {
@@ -45,7 +46,8 @@ const getParkInfo = (times, openClose) => {
 
 const checkCache = (name) => {
     const filterCache = cachedParks.reduce((bool, park) => {
-        if(name === park.name && park.time < new Date().getTime()){
+        const eastCoastTime = moment.tz("America/New_York").format();
+        if(name === park.name && park.time < new Date(eastCoastTime).getTime()){
             bool = true;
         }
         return bool;
@@ -84,10 +86,11 @@ const syncCache = () => {
             let j = 0;
             for(let i = 0; i < parks.length; i+=2){
                 const parkInfo = getParkInfo(parks[i], parks[i+1][0]);
+                const eastCoastTime = moment.tz("America/New_York").format();
                 cachedParks.push(
                     {
-                        now:new Date().toLocaleString(),
-                        time:new Date().getTime() + (3 * 60 * 1000), 
+                        nowEastCoast:new Date(eastCoastTime).toLocaleString(),
+                        time:new Date(eastCoastTime).getTime() + (3 * 60 * 1000), 
                         name:keys[j],
                         parkInfo,
                         times:parks[i],
@@ -118,7 +121,8 @@ const getCache = (name) =>{
  }; 
 
 const isClosed = (times)=>{
-    const dt = new Date();
+    const eastCoastTime = moment.tz("America/New_York").format();
+    const dt = new Date(eastCoastTime);
     if(new Date(times[0].openingTime).getTime() <= dt.getTime()){
         return new Date(times[0].closingTime).getTime() < (dt.getTime()) ? true : false;
     }else{
@@ -129,11 +133,11 @@ const isClosed = (times)=>{
 const getBestPark = ()=>{
 
     const allParksClosed = cachedParks.reduce((bool, park)=>{
-        // if(!isClosed(park.openClose)){
-        //     bool = false;
-        // }
+        if(!isClosed(park.openClose)){
+            bool = false;
+        }
         return bool
-    },false)
+    },true)
 
     if(!allParksClosed){
         return cachedParks.reduce((bestPark, park)=>{
@@ -149,7 +153,8 @@ const getBestPark = ()=>{
             return bestPark;
         },{})
     }else{
-        return "All parks are closed"
+        const eastCoastTime = moment.tz("America/New_York").format();
+        return `All parks are closed ${new Date(eastCoastTime).toLocaleString('en-US')}`
     }
 
 };
