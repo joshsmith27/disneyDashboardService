@@ -125,7 +125,7 @@ const isClosed = (times)=>{
     if(moment.tz(times[0].openingTime, "America/New_York").valueOf() <= eastCoastTime){
         return moment.tz(times[0].closingTime, "America/New_York").valueOf() < eastCoastTime ? true : false;
     }else{
-        return false;
+        return true;
     }
 };
 
