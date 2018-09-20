@@ -9,8 +9,8 @@ module.exports = {
                 if(!functions.isClosed(cachedPark.openClose)){
                     res.send(cachedPark.parkInfo)
                 }else{
-                    const eastCoastTime = moment.tz("America/New_York").format();
-                    res.send(`This park is closed. ${new Date(eastCoastTime).toLocaleString('en-US')}`)
+                    const eastCoastTime = moment.tz(new Date(), "America/New_York").format("MM/DD/YYYY HH:mm a");
+                    res.send(`This park is closed. ${eastCoastTime}`)
                 }
         }else{
             res.send("Not a supported park")

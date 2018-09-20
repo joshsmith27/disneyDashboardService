@@ -46,8 +46,7 @@ const getParkInfo = (times, openClose) => {
 
 const checkCache = (name) => {
     const filterCache = cachedParks.reduce((bool, park) => {
-        const eastCoastTime = moment.tz("America/New_York").format();
-        if(name === park.name && park.time < new Date(eastCoastTime).getTime()){
+        if(name === park.name && park.time < new Date().getTime()){
             bool = true;
         }
         return bool;
@@ -86,11 +85,11 @@ const syncCache = () => {
             let j = 0;
             for(let i = 0; i < parks.length; i+=2){
                 const parkInfo = getParkInfo(parks[i], parks[i+1][0]);
-                const eastCoastTime = moment.tz("America/New_York").format();
+                const eastCoastTime = moment.tz(new Date(), "America/New_York").format("MM/DD/YYYY HH:mm a");
                 cachedParks.push(
                     {
-                        nowEastCoast:new Date(eastCoastTime).toLocaleString(),
-                        time:new Date(eastCoastTime).getTime() + (3 * 60 * 1000), 
+                        nowEastCoast:eastCoastTime,
+                        time:new Date().getTime() + (3 * 60 * 1000), 
                         name:keys[j],
                         parkInfo,
                         times:parks[i],
@@ -121,10 +120,10 @@ const getCache = (name) =>{
  }; 
 
 const isClosed = (times)=>{
-    const eastCoastTime = moment.tz("America/New_York").format();
-    const dt = new Date(eastCoastTime);
-    if(new Date(times[0].openingTime).getTime() <= dt.getTime()){
-        return new Date(times[0].closingTime).getTime() < (dt.getTime()) ? true : false;
+    const dt = new Date();
+    const eastCoastTime = moment.tz(dt,"America/New_York").valueOf();
+    if(moment.tz(times[0].openingTime, "America/New_York").valueOf() <= eastCoastTime){
+        return moment.tz(times[0].closingTime, "America/New_York").valueOf() < eastCoastTime ? true : false;
     }else{
         return false;
     }
@@ -153,8 +152,8 @@ const getBestPark = ()=>{
             return bestPark;
         },{})
     }else{
-        const eastCoastTime = moment.tz("America/New_York").format();
-        return `All parks are closed ${new Date(eastCoastTime).toLocaleString('en-US')}`
+        const eastCoastTime = moment.tz(new Date(), "America/New_York").format("MM/DD/YYYY HH:mm a");
+        return `All parks are closed ${eastCoastTime}`
     }
 
 };
