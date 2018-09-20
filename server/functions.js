@@ -133,7 +133,7 @@ const getBestPark = ()=>{
         //     bool = false;
         // }
         return bool
-    },true)
+    },false)
 
     if(!allParksClosed){
         return cachedParks.reduce((bestPark, park)=>{
