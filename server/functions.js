@@ -129,6 +129,12 @@ const isClosed = (times)=>{
     }
 };
 
+const getAllParks = () =>{
+    return cachedParks.map((park)=>{
+        return {name: park.name, average: park.parkInfo.average}
+    });
+}
+
 const getBestPark = ()=>{
 
     const allParksClosed = cachedParks.reduce((bool, park)=>{
@@ -163,6 +169,7 @@ module.exports = {
     getCache,
     getBestPark,
     syncCache,
+    getAllParks
 }
 
 

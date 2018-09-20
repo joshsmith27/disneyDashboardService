@@ -15,6 +15,8 @@ app.use(bodyParser.json());
 
 app.get('/api/wait_times/:park', controller.parkInfo)
 app.get('/api/best_park', controller.getBestPark)
+app.get('/api/all_parks', controller.getAllParks)
+
 app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname + '/index.html'));
 });

@@ -18,7 +18,10 @@ module.exports = {
     },
 
     getBestPark: (req, res, next)=>{
-        
         res.send(functions.getBestPark())
+    },
+
+    getAllParks: (req,res,next) => {
+        res.send(functions.getAllParks())
     }
 }
