@@ -86,6 +86,7 @@ const syncCache = () => {
                 const parkInfo = getParkInfo(parks[i], parks[i+1][0]);
                 cachedParks.push(
                     {
+                        now:new Date().toLocaleString(),
                         time:new Date().getTime() + (3 * 60 * 1000), 
                         name:keys[j],
                         parkInfo,
@@ -118,8 +119,8 @@ const getCache = (name) =>{
 
 const isClosed = (times)=>{
     const dt = new Date();
-    if(new Date(times[0].openingTime).getTime() <= (dt.getTime() + dt.getTimezoneOffset()*60*1000)){
-        return new Date(times[0].closingTime).getTime() < (dt.getTime() + dt.getTimezoneOffset()*60*1000) ? true : false;
+    if(new Date(times[0].openingTime).getTime() <= dt.getTime()){
+        return new Date(times[0].closingTime).getTime() < (dt.getTime()) ? true : false;
     }else{
         return false;
     }
