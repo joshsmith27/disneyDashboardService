@@ -129,9 +129,9 @@ const isClosed = (times)=>{
 const getBestPark = ()=>{
 
     const allParksClosed = cachedParks.reduce((bool, park)=>{
-        if(!isClosed(park.openClose)){
-            bool = false;
-        }
+        // if(!isClosed(park.openClose)){
+        //     bool = false;
+        // }
         return bool
     },true)
 
