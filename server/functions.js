@@ -17,7 +17,7 @@ const getAverage = (times) => {
 
 const getLongestShortest = (times) => {
     return times.reduce((ride, time)=>{
-        if(ride.longest.waitTime === undefined && time.active || !ride.shortest.waitTime === undefined && time.active){
+        if(ride.longest.waitTime === undefined && time.active && time.waitTime > 0 || !ride.shortest.waitTime === undefined && time.active){
        // if(ride.longest.waitTime === undefined || !ride.shortest.waitTime === undefined){
             ride.longest = time;
             ride.shortest = time;
@@ -25,7 +25,7 @@ const getLongestShortest = (times) => {
         if(time.waitTime > ride.longest.waitTime && time.active){
             ride.longest = time;
         }
-        if(time.waitTime < ride.shortest.waitTime && time.active && time.waitTime > 0){
+        if(time.waitTime > 0 && time.waitTime < ride.shortest.waitTime && time.active  ){
             ride.shortest = time;
         }
         return ride;
