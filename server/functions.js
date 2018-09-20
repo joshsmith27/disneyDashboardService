@@ -25,7 +25,7 @@ const getLongestShortest = (times) => {
         if(time.waitTime > ride.longest.waitTime && time.active){
             ride.longest = time;
         }
-        if(time.waitTime < ride.shortest.waitTime && time.active){
+        if(time.waitTime < ride.shortest.waitTime && time.active && time.waitTime > 0){
             ride.shortest = time;
         }
         return ride;
