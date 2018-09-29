@@ -4,7 +4,7 @@ let cachedParks = [];
 
 const checkActiveLength = (times) => {
     return times.filter((time)=>{
-        return time.active
+        return time.waitTime > 0
     }).length
 }
 
