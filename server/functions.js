@@ -1,5 +1,6 @@
 const parks = require('./parks');
 const moment = require('moment-timezone');
+const sockets = require('./socket');
 let cachedParks = [];
 
 const checkActiveLength = (times) => {
@@ -64,7 +65,7 @@ const checkCache = (name) => {
     }, false);
 } 
 
-const syncCache = () => {
+const syncCache = (app) => {
     const keys = Object.keys(parks);
     const getParks  = keys.reduce((bool, key) => {
         if(!checkCache(key)){
@@ -82,31 +83,66 @@ const syncCache = () => {
        Promise.all(parkPromises)
         .then((parks) => {
             console.log('We got data')
+            const dataToSave = [];
+            const db = app.get('db');
             let j = 0;
             for(let i = 0; i < parks.length; i+=2){
                 const parkInfo = getParkInfo(parks[i], parks[i+1][0]);
-                const eastCoastTime = moment.tz(new Date(), "America/New_York").format("MM/DD/YYYY HH:mm a");
+                const dt = moment.tz(new Date(),"America/New_York").format("MM/DD/YYYY HH:mm:ss"); 
+                const dateToSave = new Date(dt)
+                const eastCoastTime = moment.tz(new Date(), "America/New_York").format("MM/DD/YYYY hh:mm a");
+                parks[i]
                 cachedParks.push(
                     {
                         nowEastCoast:eastCoastTime,
-                        time:new Date().getTime() + (3 * 60 * 1000), 
+                        time:new Date().getTime() + (30 * 1000), 
                         name:keys[j],
                         parkInfo,
                         times:parks[i],
                         openClose:parks[i+1],
                     }
                 )
-                j++
+
+
+
+                // parks[i].forEach((ride)=>{
+                //     if(ride.waitTime > 0){
+                //         dataToSave.push(db.wait_time.insert({park_name:ride.id.split('_')[0], ride_id:ride.id, date_time:dateToSave, wait_time:ride.waitTime}))
+                //     }
+                // })
+                // j++
             }
-            syncCache() 
+
+            sockets.getParkDetails(app, 'disneyMagicKingdom', getParkDetails('disneyMagicKingdom'));
+            sockets.getParkDetails(app, 'disneyEpcot', getParkDetails('disneyEpcot'));
+            sockets.getParkDetails(app, 'disneyAnimalKingdom', getParkDetails('disneyAnimalKingdom'));
+            sockets.getParkDetails(app, 'disneyHollywoodStudios', getParkDetails('disneyHollywoodStudios'));
+            sockets.getBestPark(app, getBestPark());
+            sockets.getAllParks(app, getAllParks());
+
+            if(dataToSave.length > 0){
+                    Promise.all(dataToSave)
+                    .then((saveTimes)=>{
+                        console.log('Data Saved')
+                        syncCache(app)
+                    })
+                    .catch((error)=>{
+                        console.log('Data Not Saved')
+                        syncCache(app)
+                    })
+            }else{
+                syncCache(app)
+            }
+            
         })
-        .catch(()=>{
+        .catch((e)=>{
+
             console.log('Something broke. Rerunning function')
-            syncCache()
+            syncCache(app)
         })
     }else{
         console.log('Waiting for 30 seconds')
-        setTimeout(syncCache, (30 * 1000))
+        setTimeout(() => syncCache(app), (3 * 60 * 1000))
     }
 }
 
@@ -130,13 +166,42 @@ const isClosed = (times)=>{
 };
 
 const getAllParks = () =>{
-    return cachedParks.map((park)=>{
-        return {name: park.name, average: park.parkInfo.average}
-    });
+   return cachedParks.map((park)=>{
+        switch(park.name){
+          case'disneyAnimalKingdom':
+            park.park = 'Animal Kingdom'
+            break;
+          case'disneyEpcot':
+            park.park = 'Epcot'
+            break;
+          case'disneyMagicKingdom':
+            park.park = 'Magic Kingdom'
+            break;
+          case'disneyHollywoodStudios':
+            park.park = 'Hollywood Studios'
+            break;
+          default:
+            break;
+        }
+        return {name: park.name, park:park.park, average: park.parkInfo.average}
+    })
+}
+
+const getParkDetails = (park) => {
+    if(parks[park]){
+        const cachedPark = getCache(park);
+        if(!isClosed(cachedPark.openClose)){
+            return cachedPark.parkInfo
+        }else{
+            const eastCoastTime = moment.tz(new Date(), "America/New_York").format("MM/DD/YYYY HH:mm a");
+            return `This park is closed. ${eastCoastTime}`; 
+        }
+    }else{
+        return "Not a supported park"
+    }
 }
 
 const getBestPark = ()=>{
-
     const allParksClosed = cachedParks.reduce((bool, park)=>{
         if(!isClosed(park.openClose)){
             bool = false;
@@ -145,7 +210,7 @@ const getBestPark = ()=>{
     },true)
 
     if(!allParksClosed){
-        return cachedParks.reduce((bestPark, park)=>{
+       return cachedParks.reduce((bestPark, park)=>{
             if(!bestPark.parkInfo){
                 if(!isNaN(park.parkInfo.average)){
                     bestPark = park;
@@ -156,10 +221,10 @@ const getBestPark = ()=>{
                 }
             }
             return bestPark;
-        },{})
+        },{});
     }else{
         const eastCoastTime = moment.tz(new Date(), "America/New_York").format("MM/DD/YYYY HH:mm a");
-        return `All parks are closed ${eastCoastTime}`
+         return `All parks are closed ${eastCoastTime}`;
     }
 
 };
@@ -169,7 +234,8 @@ module.exports = {
     getCache,
     getBestPark,
     syncCache,
-    getAllParks
+    getAllParks,
+    getParkDetails
 }
 
 
