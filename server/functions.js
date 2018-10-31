@@ -110,7 +110,7 @@ const syncCache = (app) => {
                 //         dataToSave.push(db.wait_time.insert({park_name:ride.id.split('_')[0], ride_id:ride.id, date_time:dateToSave, wait_time:ride.waitTime}))
                 //     }
                 // })
-                // j++
+                 j++
             }
 
             sockets.getParkDetails(app, 'disneyMagicKingdom', getParkDetails('disneyMagicKingdom'));

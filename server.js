@@ -23,12 +23,12 @@ app.set('parkSocket', io
     })
 );
 
-// massive(process.env.CONNECTION_STRING)
-//     .then((dbInstance)=>{
-//         app.set('db', dbInstance);
-//         functions.syncCache(app);
-//         console.log('connected To Db')
-//     })
+massive(process.env.CONNECTION_STRING)
+    .then((dbInstance)=>{
+        app.set('db', dbInstance);
+        functions.syncCache(app);
+        console.log('connected To Db')
+    })
 
 app.use(cors());
 app.use(bodyParser.json());
