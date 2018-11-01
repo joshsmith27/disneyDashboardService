@@ -95,7 +95,7 @@ const syncCache = (app) => {
                 cachedParks.push(
                     {
                         nowEastCoast:eastCoastTime,
-                        time:new Date().getTime() + (30 * 1000), 
+                        time:new Date().getTime() + (3 * 60 * 1000), 
                         name:keys[j],
                         parkInfo,
                         times:parks[i],
@@ -142,7 +142,7 @@ const syncCache = (app) => {
         })
     }else{
         console.log('Waiting for 30 seconds')
-        setTimeout(() => syncCache(app), (3 * 60 * 1000))
+        setTimeout(() => syncCache(app), (30 * 1000))
     }
 }
 
