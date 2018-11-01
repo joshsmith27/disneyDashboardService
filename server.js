@@ -23,7 +23,7 @@ app.set('parkSocket', io
     })
 );
 
-massive(process.env.CONNECTION_STRING)
+massive(process.env.DATABASE_URL)
     .then((dbInstance)=>{
         app.set('db', dbInstance);
         functions.syncCache(app);
